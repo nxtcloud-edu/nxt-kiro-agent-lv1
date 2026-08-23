@@ -21,5 +21,10 @@ node_modules/
 .kiro/steering/
 .kiro/specs/
 
+# 단, aidlc 실습은 .kiro 를 그대로 열어 쓰므로 예외로 둔다
+!aidlc/.kiro/
+!aidlc/.kiro/steering/
+!aidlc/.kiro/steering/**
+
 # GStack 파일
 .gstack
