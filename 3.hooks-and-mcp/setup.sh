@@ -58,28 +58,14 @@ else
   here=$(pwd -P)
 
   # clone 으로 받았으면 이 폴더는 수업 저장소 안이다.
-  # 실습은 이 폴더 하나로 끝나고 다시 받을 일도 없으므로 그 연결을 끊는다.
+  # 실습 커밋이 거기 섞이지 않도록 연결을 끊는다.
   # 지우지 않고 이름만 바꾼다 — 잘못 돌렸으면 되돌릴 수 있어야 한다.
   if [ -n "$outer" ] && [ "$outer" != "$here" ]; then
-    note "여기는 저장소 안이다 — $outer"
-    if [ -d "$outer/.git-backup" ]; then
-      bad "$outer/.git-backup 이 이미 있다. 정리하고 다시 실행한다."
-      exit 1
-    fi
-    printf '      실습용으로 그 저장소와의 연결을 끊는다 (.git → .git-backup). 계속할까? [Y/n] '
-    # 앞 단계에서 stdin 이 소모됐을 수 있다. 터미널에서 직접 읽는다.
-    ans=""
-    if exec 3</dev/tty 2>/dev/null; then read -r ans <&3; exec 3<&-; else printf '\n'; fi
-    case "${ans:-y}" in
-      y|Y)
-        mv "$outer/.git" "$outer/.git-backup"
-        ok "연결을 끊었다 — 되돌리려면 mv '$outer/.git-backup' '$outer/.git'"
-        ;;
-      *)
-        bad "그만둔다. 이 폴더를 저장소 밖(예: 바탕화면)으로 복사한 뒤 다시 실행한다."
-        exit 1
-        ;;
-    esac
+    keep="$outer/.git-backup"
+    [ -e "$keep" ] && keep="$outer/.git-backup-$(date +%Y%m%d%H%M%S)"
+    mv "$outer/.git" "$keep"
+    note "수업 저장소($outer)와의 연결을 끊었다"
+    note "되돌리려면 — mv '$keep' '$outer/.git'"
   fi
 
   if [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$here" ]; then
