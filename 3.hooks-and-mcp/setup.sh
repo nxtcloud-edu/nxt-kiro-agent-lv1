@@ -50,9 +50,16 @@ else
   exit 1
 fi
 
-step "4. git — 단계마다 커밋을 남기려면 필요하다"
+step "4. git — 커밋과 /commit 스킬에 필요하다"
 if ! command -v git >/dev/null 2>&1; then
-  bad "git 이 없다. 커밋 기능(aidlc_snapshot)만 못 쓴다. 실습은 그대로 된다."
+  bash install-git.sh || true
+  hash -r 2>/dev/null || true
+  export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+fi
+
+if ! command -v git >/dev/null 2>&1; then
+  bad "git 을 준비하지 못했다. 커밋(aidlc_snapshot)과 /commit 스킬을 못 쓴다."
+  note "직접 설치한 뒤 이 스크립트를 다시 돌린다 — https://git-scm.com/downloads"
 else
   outer=$(git rev-parse --show-toplevel 2>/dev/null || true)
   here=$(pwd -P)

@@ -54,9 +54,19 @@ if ($out -match '"serverInfo"') {
     exit 1
 }
 
-Step "4. git - 단계마다 커밋을 남기려면 필요하다"
+Step "4. git - 커밋과 /commit 스킬에 필요하다"
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Bad "git 이 없다. 커밋 기능(aidlc_snapshot)만 못 쓴다. 실습은 그대로 된다."
+    try { & "$PSScriptRoot\install-git.ps1" } catch { }
+    # 설치 직후에는 이 세션의 PATH 가 옛날 것이다. 레지스트리에서 다시 읽는다.
+    $machine = [Environment]::GetEnvironmentVariable('Path', 'Machine')
+    $user    = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $parts   = @($machine, $user, "$env:ProgramFiles\Git\cmd") | Where-Object { $_ }
+    $env:Path = $parts -join ';'
+}
+
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    Bad "git 을 준비하지 못했다. 커밋(aidlc_snapshot)과 /commit 스킬을 못 쓴다."
+    Note "직접 설치한 뒤 이 스크립트를 다시 돌린다 - https://git-scm.com/downloads"
 } else {
     $here  = $PWD.Path
     $outer = git rev-parse --show-toplevel 2> $null
