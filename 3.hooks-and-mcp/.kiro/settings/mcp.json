@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "aidlc": {
+      "command": "uv",
+      "args": ["run", "--script", ".kiro/mcp/aidlc_server.py"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "aidlc_status",
+        "aidlc_check",
+        "aidlc_spec_append",
+        "aidlc_gate_ask",
+        "aidlc_gate_answer",
+        "aidlc_mistake",
+        "aidlc_state"
+      ]
+    }
+  }
+}
