@@ -6,6 +6,7 @@ Set-Location $PSScriptRoot
 
 function Ok   { param($m) Write-Host "  OK  $m" -ForegroundColor Green }
 function Bad  { param($m) Write-Host "  X   $m" -ForegroundColor Red }
+function Note { param($m) Write-Host "  .   $m" -ForegroundColor Yellow }
 function Step { param($m) Write-Host ""; Write-Host $m -ForegroundColor White }
 
 Write-Host ""
@@ -56,16 +57,39 @@ if ($out -match '"serverInfo"') {
 Step "4. git - 단계마다 커밋을 남기려면 필요하다"
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Bad "git 이 없다. 커밋 기능(aidlc_snapshot)만 못 쓴다. 실습은 그대로 된다."
-} elseif ((git rev-parse --is-inside-work-tree 2> $null) -eq "true") {
-    Ok "이미 저장소 안이다 - $(git rev-parse --show-toplevel)"
 } else {
-    git init -q
-    if (-not (Test-Path .gitignore)) {
-        [IO.File]::WriteAllText("$PWD\.gitignore", "__pycache__/`n.DS_Store`n")
+    $here  = $PWD.Path
+    $outer = git rev-parse --show-toplevel 2> $null
+    if ($outer) { $outer = $outer -replace '/', '\' }
+
+    # clone 으로 받았으면 이 폴더는 수업 저장소 안이다.
+    # 실습은 이 폴더 하나로 끝나고 다시 받을 일도 없으므로 그 연결을 끊는다.
+    # 지우지 않고 이름만 바꾼다 - 잘못 돌렸으면 되돌릴 수 있어야 한다.
+    if ($outer -and ($outer -ne $here)) {
+        Note "여기는 저장소 안이다 - $outer"
+        if (Test-Path "$outer\.git-backup") {
+            Bad "$outer\.git-backup 이 이미 있다. 정리하고 다시 실행한다."
+            exit 1
+        }
+        $ans = Read-Host "      실습용으로 그 저장소와의 연결을 끊는다 (.git -> .git-backup). 계속할까? [Y/n]"
+        if ($ans -eq "" -or $ans -match '^[yY]$') {
+            Rename-Item "$outer\.git" ".git-backup"
+            Ok "연결을 끊었다 - 되돌리려면 Rename-Item '$outer\.git-backup' '.git'"
+        } else {
+            Bad "그만둔다. 이 폴더를 저장소 밖(예: 바탕화면)으로 복사한 뒤 다시 실행한다."
+            exit 1
+        }
     }
-    git add -A *> $null
-    git commit -qm "chore: 실습 시작 상태" *> $null
-    Ok "저장소를 만들고 시작 상태를 커밋했다"
+
+    $top = git rev-parse --show-toplevel 2> $null
+    if ($top -and (($top -replace '/', '\') -eq $here)) {
+        Ok "이미 이 폴더가 저장소다 - $here"
+    } else {
+        git init -q
+        git add -A -- . *> $null
+        git commit -qm "chore: 실습 시작 상태" *> $null
+        Ok "이 폴더를 저장소로 만들고 시작 상태를 커밋했다"
+    }
 }
 
 Write-Host @"

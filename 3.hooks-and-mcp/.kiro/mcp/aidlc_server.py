@@ -453,7 +453,8 @@ def aidlc_snapshot(step: str, note: str = "") -> str:
         if chk.returncode != 0:
             return f"{ROOT} 는 git 저장소가 아니다. `git init` 이 먼저다."
     msg = f"docs: {step.strip()} 완료" + (f" — {note.strip()}" if note.strip() else "")
-    subprocess.run(["git", "add", "-A"], cwd=ROOT, capture_output=True, text=True)
+    # `-- .` 가 없으면 상위 저장소 전체가 스테이징된다 (git add -A 는 cwd 와 무관하다)
+    subprocess.run(["git", "add", "-A", "--", "."], cwd=ROOT, capture_output=True, text=True)
     r = subprocess.run(["git", "commit", "-m", msg], cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         out = (r.stdout + r.stderr).strip()

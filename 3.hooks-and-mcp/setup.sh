@@ -7,6 +7,7 @@ cd "$(dirname "$0")"
 
 ok()   { printf '  \033[32m✓\033[0m %s\n' "$*"; }
 bad()  { printf '  \033[31m✗\033[0m %s\n' "$*"; }
+note() { printf '  \033[33m·\033[0m %s\n' "$*"; }
 step() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 
 printf '\n\033[1mAI-DLC 실습 준비\033[0m — macOS · Linux\n'
@@ -52,13 +53,42 @@ fi
 step "4. git — 단계마다 커밋을 남기려면 필요하다"
 if ! command -v git >/dev/null 2>&1; then
   bad "git 이 없다. 커밋 기능(aidlc_snapshot)만 못 쓴다. 실습은 그대로 된다."
-elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  ok "이미 저장소 안이다 — $(git rev-parse --show-toplevel)"
 else
-  git init -q
-  [ -f .gitignore ] || printf '__pycache__/\n.DS_Store\n' > .gitignore
-  git add -A >/dev/null 2>&1 && git commit -qm "chore: 실습 시작 상태" >/dev/null 2>&1
-  ok "저장소를 만들고 시작 상태를 커밋했다"
+  outer=$(git rev-parse --show-toplevel 2>/dev/null || true)
+  here=$(pwd -P)
+
+  # clone 으로 받았으면 이 폴더는 수업 저장소 안이다.
+  # 실습은 이 폴더 하나로 끝나고 다시 받을 일도 없으므로 그 연결을 끊는다.
+  # 지우지 않고 이름만 바꾼다 — 잘못 돌렸으면 되돌릴 수 있어야 한다.
+  if [ -n "$outer" ] && [ "$outer" != "$here" ]; then
+    note "여기는 저장소 안이다 — $outer"
+    if [ -d "$outer/.git-backup" ]; then
+      bad "$outer/.git-backup 이 이미 있다. 정리하고 다시 실행한다."
+      exit 1
+    fi
+    printf '      실습용으로 그 저장소와의 연결을 끊는다 (.git → .git-backup). 계속할까? [Y/n] '
+    # 앞 단계에서 stdin 이 소모됐을 수 있다. 터미널에서 직접 읽는다.
+    ans=""
+    if exec 3</dev/tty 2>/dev/null; then read -r ans <&3; exec 3<&-; else printf '\n'; fi
+    case "${ans:-y}" in
+      y|Y)
+        mv "$outer/.git" "$outer/.git-backup"
+        ok "연결을 끊었다 — 되돌리려면 mv '$outer/.git-backup' '$outer/.git'"
+        ;;
+      *)
+        bad "그만둔다. 이 폴더를 저장소 밖(예: 바탕화면)으로 복사한 뒤 다시 실행한다."
+        exit 1
+        ;;
+    esac
+  fi
+
+  if [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$here" ]; then
+    ok "이미 이 폴더가 저장소다 — $here"
+  else
+    git init -q
+    git add -A -- . >/dev/null 2>&1 && git commit -qm "chore: 실습 시작 상태" >/dev/null 2>&1
+    ok "이 폴더를 저장소로 만들고 시작 상태를 커밋했다"
+  fi
 fi
 
 cat <<'MSG'
