@@ -87,7 +87,8 @@ Write-Host @"
 
   1. Kiro 에서 이 3.hooks-and-mcp 폴더를 워크스페이스 루트로 연다 (부모 폴더 아님)
   2. Steering 패널에 aidlc, MCP 패널에 aidlc 서버가 보이는지 확인한다
-  3. 채팅에 만들고 싶은 것을 말투 그대로 말한다
+  3. 커밋할 때는 채팅에 "커밋해줘" 라고 하거나 /commit 을 부른다 (.kiro/skills/commit)
+  4. 채팅에 만들고 싶은 것을 말투 그대로 말한다
 
 막히면 README.md 의 3장을 본다.
 "@
