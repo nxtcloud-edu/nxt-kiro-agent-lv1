@@ -63,14 +63,11 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     if ($outer) { $outer = $outer -replace '/', '\\' }
 
     # clone 으로 받았으면 이 폴더는 수업 저장소 안이다.
-    # 실습 커밋이 거기 섞이지 않도록 연결을 끊는다.
-    # 지우지 않고 이름만 바꾼다 - 잘못 돌렸으면 되돌릴 수 있어야 한다.
+    # 실습 커밋이 거기 섞이지 않도록 그 저장소의 .git 을 지운다.
+    # 되돌릴 수 없다. 실습은 이 폴더 하나로 끝나므로 다시 받을 일도 없다.
     if ($outer -and ($outer -ne $here)) {
-        $keep = ".git-backup"
-        if (Test-Path "$outer\$keep") { $keep = ".git-backup-" + (Get-Date -Format "yyyyMMddHHmmss") }
-        Rename-Item "$outer\.git" $keep
-        Note "수업 저장소($outer)와의 연결을 끊었다"
-        Note "되돌리려면 - Rename-Item '$outer\$keep' '.git'"
+        Remove-Item "$outer\.git" -Recurse -Force
+        Note "수업 저장소($outer)의 .git 을 지웠다 - 그 폴더는 이제 git 저장소가 아니다"
     }
 
     $top = git rev-parse --show-toplevel 2> $null

@@ -58,14 +58,11 @@ else
   here=$(pwd -P)
 
   # clone 으로 받았으면 이 폴더는 수업 저장소 안이다.
-  # 실습 커밋이 거기 섞이지 않도록 연결을 끊는다.
-  # 지우지 않고 이름만 바꾼다 — 잘못 돌렸으면 되돌릴 수 있어야 한다.
+  # 실습 커밋이 거기 섞이지 않도록 그 저장소의 .git 을 지운다.
+  # 되돌릴 수 없다. 실습은 이 폴더 하나로 끝나므로 다시 받을 일도 없다.
   if [ -n "$outer" ] && [ "$outer" != "$here" ]; then
-    keep="$outer/.git-backup"
-    [ -e "$keep" ] && keep="$outer/.git-backup-$(date +%Y%m%d%H%M%S)"
-    mv "$outer/.git" "$keep"
-    note "수업 저장소($outer)와의 연결을 끊었다"
-    note "되돌리려면 — mv '$keep' '$outer/.git'"
+    rm -rf "$outer/.git"
+    note "수업 저장소($outer)의 .git 을 지웠다 — 그 폴더는 이제 git 저장소가 아니다"
   fi
 
   if [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$here" ]; then
