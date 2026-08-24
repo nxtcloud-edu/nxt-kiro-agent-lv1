@@ -5,9 +5,9 @@ AI 에게 **단계를 지켜 일하게** 만드는 실습이다.
 
 ## 1. 여는 방법 — 제일 중요
 
-Kiro 에서 **이 `aidlc` 폴더를 워크스페이스 루트로 열어야 한다.**
+Kiro 에서 **이 `2.kiro-aidlc` 폴더를 워크스페이스 루트로 열어야 한다.**
 
-부모 폴더(`nxt-kiro-agent-lv1`)를 열면 규칙 파일이 `aidlc/.kiro/...` 가 되어
+부모 폴더(`nxt-kiro-agent-lv1`)를 열면 규칙 파일이 `2.kiro-aidlc/.kiro/...` 가 되어
 **Kiro 가 규칙을 읽지 않는다.** 그러면 AI 는 평소처럼 코드부터 쓴다.
 
 **확인하고 시작한다:**
@@ -20,7 +20,7 @@ Kiro 에서 **이 `aidlc` 폴더를 워크스페이스 루트로 열어야 한�
 ## 2. 폴더에 뭐가 있나
 
 ```text
-aidlc/
+2.kiro-aidlc/
 ├── .kiro/
 │   ├── steering/aidlc.md            AI 가 따라야 할 규칙 (건드리지 않는다)
 │   ├── templates/requirements.md    requirements.md 를 쓸 때 따를 형식
